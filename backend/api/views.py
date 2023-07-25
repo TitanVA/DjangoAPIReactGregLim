@@ -1,3 +1,15 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# Create your views here.
+from todo.models import Todo
+from .serializers import TodoSerializer
+
+
+class TodoListCreate(generics.ListCreateAPIView):
+    serializer_class = TodoSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Todo.objects.filter(user=user).order_by('-created')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
